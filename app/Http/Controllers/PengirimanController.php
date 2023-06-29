@@ -3,115 +3,69 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Pengiriman;
 
-class Pengiriman extends Controller
+
+class PengirimanController extends Controller
 {
-        public function index()
+ public function index()
     {
-        $pengiriman = Pengiriman::all();
+        $result = Pengiriman::all();
 
-        if($pengiriman){
-            $data = [
-                'message' => "get all resource pengiriman",
-                'data' => $pengiriman
-            ];
-            return response()->json($data, 200);
-        }else{
-            $data = [
-                'message' => "data empty",
-            ];
-            return response()->json($data, 404);
-        }
+        return view('logistik.pengiriman', ['pengiriman' => $result]);
     }
 
     public function store(Request $request){
-        $input = [
-            'nama_pengiriman' => $request->nama_pengiriman,
-            'alamat_pengiriman' => $request->alamat_pengiriman,
-            'no_telp_pengiriman' => $request->no_telp_pengiriman,
-            'status_pengiriman' => $request->status_pengiriman,
-        ];
 
-        $pengiriman = Pengiriman::create($input);
+        $dataInput = $request->validate([
+            'id_distributor'       => 'required',
+                'id_produk'       => 'required',
+                'tanggal_pengiriman'       => 'required',
+                'jumlah_produk_pengiriman'  => 'required',
+                'kode_pengiriman'       => 'required',
+                'harga_pengiriman'      => 'required|numeric',
+                'status_pengiriman'     => 'required|numeric',
+        ]) ;
 
-        $data = [
-            'message' => 'pengiriman is created successfully',
-            'data' => $pengiriman,
-        ];
-        return response()->json($data, 201);
-    }
-
-    public function show(Request $request, $id)
-    {
-        $pengiriman = Pengiriman::find($id);
-
-        if ($pengiriman) {
-            $data = [
-                "message" => "Resouces by id $id successfuly",
-                "data" => $pengiriman
-            ];
-
-            // mengembalikan data (json) dan kode 200
-
-            return response()->json($data, 200);
-        } else {
-            $data = [
-                'message' => "Resources not found"
-            ];
-
-            return response()->json($data, 404);
+        $pengiriman = Pengiriman::create($dataInput);
+        
+        if($pengiriman){
+            return redirect('/pengiriman');
         }
     }
 
-    public function update(Request $request, $id)
+    public function edit(Request $request, $id)
     {
-        $pengiriman = Pengiriman::find($id);
+      // Validasi data input
+        $request->validate([
+             'id_distributor'       => 'required',
+                'id_produk'       => 'required',
+                'tanggal_pengiriman'       => 'required',
+                'jumlah_produk_pengiriman'  => 'required',
+                'kode_pengiriman'       => 'required',
+                'harga_pengiriman'      => 'required|numeric',
+                'status_pengiriman'     => 'required|numeric',
+        ]);
 
-        if ($pengiriman) {
-            // menagkap data request
-            $input = [
-                'nama_pengiriman' => $request->nama_pengiriman,
-                'alamat_pengiriman' => $request->alamat_pengiriman,
-                'no_telp_pengiriman' => $request->no_telp_pengiriman,
-                'status_pengiriman' => $request->status_pengiriman,
-            ];
+        // Update data pengiriman
+        $pengiriman = Pengiriman::findOrFail($id);
+        $pengiriman->id_distributor = $request->id_distributor;
+        $pengiriman->id_produk = $request->id_produk;
+        $pengiriman->tanggal_pengiriman = $request->tanggal_pengiriman;
+        $pengiriman->jumlah_produk_pengiriman = $request->jumlah_produk_pengiriman;
+        $pengiriman->kode_pengiriman = $request->kode_pengiriman;
+        $pengiriman->status_pengiriman = $request->status_pengiriman;
+        $pengiriman->save();
 
-            $pengiriman->update($input);
-            $data = [
-                'message' => 'pengiriman is updated',
-                'data' => $pengiriman
-            ];
-
-            #mengembalikan data (json) dan kode 200
-            return response()->json($data, 200);
-        } else {
-            $data = [
-                'message' => 'pengiriman Not Found'
-            ];
-
-            return response()->json($data, 404);
-        }
+        // Redirect ke halaman yang diinginkan atau tampilkan pesan berhasil
+        return redirect()->back()->with('success', 'Data pengiriman berhasil diupdate.');
     }
 
     public function destroy($id)
     {
-        $pengiriman = Pengiriman::find($id);
+        $pengiriman = Pengiriman::findOrFail($id);
+        $pengiriman->delete();
 
-        if ($pengiriman) {
-            $pengiriman->delete($id);
-
-            $data = [
-                'message' => 'pengiriman is deleted'
-            ];
-
-            # mengembalikan data (json) dan kode 200
-            return response()->json($data, 200);
-        } else {
-            $data = [
-                'message' => 'pengiriman not found'
-            ];
-
-            return response()->json($data, 404);
-        }
+        return redirect()->back()->with('success', 'Data produsen berhasil dihapus.');
     }
 }

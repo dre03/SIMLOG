@@ -9,106 +9,48 @@ class KategoriController extends Controller
 {
     public function index()
     {
-        $kategori = Kategori::all();
+        $result = Kategori::all();
 
-        if($kategori){
-            $data = [
-                'message' => "get all resource kategori",
-                'data' => $kategori
-            ];
-            return response()->json($data, 200);
-        }else{
-            $data = [
-                'message' => "data empty",
-            ];
-            return response()->json($data, 404);
-        }
+        return view('logistik.kategori', ['kategori' => $result]);
     }
 
     public function store(Request $request){
-        $input = [
-            'nama_kategori' => $request->nama_kategori,
-            'status_kategori' => $request->status_kategori,
-        ];
 
-        $kategori = Kategori::create($input);
+        $dataInput = $request->validate([
+            'nama_kategori' => 'required',
+            'status_kategori' => 'required',
+        ]) ;
 
-        $data = [
-            'message' => 'Kategori is created successfully',
-            'data' => $kategori,
-        ];
-        return response()->json($data, 201);
-    }
-
-    public function show(Request $request, $id)
-    {
-        $kategori = Kategori::find($id);
-
-        if ($kategori) {
-            $data = [
-                "message" => "Resouces by id $id successfuly",
-                "data" => $kategori
-            ];
-
-            // mengembalikan data (json) dan kode 200
-
-            return response()->json($data, 200);
-        } else {
-            $data = [
-                'message' => "Resources not found"
-            ];
-
-            return response()->json($data, 404);
+        $kategori = kategori::create($dataInput);
+        
+        if($kategori){
+            return redirect('/kategori');
         }
     }
 
-    public function update(Request $request, $id)
+    public function edit(Request $request, $id)
     {
-        $kategori = Kategori::find($id);
+      // Validasi data input
+        $request->validate([
+            'nama_kategori' => 'required',
+            'status_kategori' => 'required',
+        ]);
 
-        if ($kategori) {
-            // menagkap data request
-            $input = [
-                'nama_kategori' => $request->nama_kategori,
-                'status_kategori' => $request->status_kategori,
-            ];
+        // Update data kategori
+        $kategori = Kategori::findOrFail($id);
+        $kategori->nama_kategori = $request->nama_kategori;
+        $kategori->status_kategori = $request->status_kategori;
+        $kategori->save();
 
-            $kategori->update($input);
-            $data = [
-                'message' => 'Kategori is updated',
-                'data' => $kategori
-            ];
-
-            #mengembalikan data (json) dan kode 200
-            return response()->json($data, 200);
-        } else {
-            $data = [
-                'message' => 'Kategori Not Found'
-            ];
-
-            return response()->json($data, 404);
-        }
+        // Redirect ke halaman yang diinginkan atau tampilkan pesan berhasil
+        return redirect()->back()->with('success', 'Data kategori berhasil diupdate.');
     }
 
     public function destroy($id)
     {
-        $kategori = Kategori::find($id);
+        $kategori = kategori::findOrFail($id);
+        $kategori->delete();
 
-        if ($kategori) {
-            $kategori->delete($id);
-
-            $data = [
-                'message' => 'kategori is deleted'
-            ];
-
-            # mengembalikan data (json) dan kode 200
-            return response()->json($data, 200);
-        } else {
-            $data = [
-                'message' => 'kategori not found'
-            ];
-
-            return response()->json($data, 404);
-        }
+        return redirect()->back()->with('success', 'Data produsen berhasil dihapus.');
     }
 }

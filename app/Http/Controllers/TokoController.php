@@ -9,110 +9,54 @@ class TokoController extends Controller
 {
     public function index()
     {
-        $toko = Toko::all();
+        $result = Toko::all();
 
-        if($toko){
-            $data = [
-                'message' => "get all resource toko",
-                'data' => $toko
-            ];
-            return response()->json($data, 200);
-        }else{
-            $data = [
-                'message' => "data empty",
-            ];
-            return response()->json($data, 404);
-        }
+        return view('logistik.toko', ['toko' => $result]);
     }
 
     public function store(Request $request){
-        $input = [
-            'nama_toko' => $request->nama_toko,
-            'alamat_toko' => $request->alamat_toko,
-            'no_telp_toko' => $request->no_telp_toko,
-            'status_toko' => $request->status_toko,
-        ];
 
-        $toko = toko::create($input);
+        $dataInput = $request->validate([
+            'nama_toko' => 'required',
+            'no_telp_toko' => 'required',
+            'alamat_toko' => 'required',
+            'status_toko' => 'required',
+        ]) ;
 
-        $data = [
-            'message' => 'toko is created successfully',
-            'data' => $toko,
-        ];
-        return response()->json($data, 201);
-    }
-
-    public function show(Request $request, $id)
-    {
-        $toko = Toko::find($id);
-
-        if ($toko) {
-            $data = [
-                "message" => "Resouces by id $id successfuly",
-                "data" => $toko
-            ];
-
-            // mengembalikan data (json) dan kode 200
-
-            return response()->json($data, 200);
-        } else {
-            $data = [
-                'message' => "Resources not found"
-            ];
-
-            return response()->json($data, 404);
+        $toko = Toko::create($dataInput);
+        
+        if($toko){
+            return redirect('/toko');
         }
     }
 
-    public function update(Request $request, $id)
+    public function edit(Request $request, $id)
     {
-        $toko = Toko::find($id);
+      // Validasi data input
+        $request->validate([
+            'nama_toko' => 'required',
+            'no_telp_toko' => 'required',
+            'alamat_toko' => 'required',
+            'status_toko' => 'required',
+        ]);
 
-        if ($toko) {
-            // menagkap data request
-            $input = [
-                'nama_toko' => $request->nama_toko,
-                'alamat_toko' => $request->alamat_toko,
-                'no_telp_toko' => $request->no_telp_toko,
-                'status_toko' => $request->status_toko,
-            ];
+        // Update data toko
+        $toko = Toko::findOrFail($id);
+        $toko->nama_toko = $request->nama_toko;
+        $toko->no_telp_toko = $request->no_telp_toko;
+        $toko->alamat_toko = $request->alamat_toko;
+        $toko->status_toko = $request->status_toko;
+        $toko->save();
 
-            $toko->update($input);
-            $data = [
-                'message' => 'toko is updated',
-                'data' => $toko
-            ];
-
-            #mengembalikan data (json) dan kode 200
-            return response()->json($data, 200);
-        } else {
-            $data = [
-                'message' => 'toko Not Found'
-            ];
-
-            return response()->json($data, 404);
-        }
+        // Redirect ke halaman yang diinginkan atau tampilkan pesan berhasil
+        return redirect()->back()->with('success', 'Data toko berhasil diupdate.');
     }
 
     public function destroy($id)
     {
-        $toko = Toko::find($id);
+        $toko = Toko::findOrFail($id);
+        $toko->delete();
 
-        if ($toko) {
-            $toko->delete($id);
-
-            $data = [
-                'message' => 'toko is deleted'
-            ];
-
-            # mengembalikan data (json) dan kode 200
-            return response()->json($data, 200);
-        } else {
-            $data = [
-                'message' => 'toko not found'
-            ];
-
-            return response()->json($data, 404);
-        }
+        return redirect()->back()->with('success', 'Data toko berhasil dihapus.');
     }
 }
