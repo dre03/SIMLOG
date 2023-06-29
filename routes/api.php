@@ -1,6 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\DistributorController;
+use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\ProdusenController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +16,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+Route::apiResource('/produsens', ProdusenController::class);
+Route::apiResource('/distributos', DistributorController::class);
+Route::apiResource('/produks', ProdukController::class);

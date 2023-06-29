@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('deskripsi_produk');
             $table->string('kode_produk');
             $table->decimal('harga_produk', 10, 2);
+            $table->string('satuan');
             $table->integer('status_produk');
             $table->timestamps();
         });
